@@ -16,30 +16,7 @@ GROUP BY store_location
 # Use `RIGHT` function to get the geo, which are the last two characters from store location. Then group the data by the geo and sum up the revenue. 
 
 Question #3 Merge these two datasets so we can see impressions, clicks, and revenue together by date and geo. Please ensure all records from each table are accounted for.
-WITH T1 AS(                                
-SELECT date, geo, SUM(clicks) AS sum_clicks, SUM(impressions) AS sum_impressions
-FROM marketing_data
-GROUP BY date, geo
-),
-T2 AS(                                      
-SELECT date, RIGHT(store_location,2) AS geo, SUM(revenue) AS total_revenue              
-FROM store_revenue                          
-GROUP BY date, store_location
-)
-SELECT T1.date, T1.geo, sum_impressions, sum_clicks, total_revenue
-FROM T1 
-LEFT JOIN T2
-ON T1.date=T2.date AND T1.geo=T2.geo
-UNION
-SELECT T2.date, T2.geo, sum_impressions, sum_clicks, total_revenue
-FROM T2 
-LEFT JOIN T1
-ON T2.date=T1.date AND T1.geo=T2.geo
 
-# I created 2 temporary tables selecting the columns I need. 
-# By summing the clicks, impressions, and revenue, I got the total clicks, total impressions, and total revenue per geographical location per time.
-# I used UNION function to do two LEFT JOINs separately in order to account for all the records in both tables. 
-# Also, I used UNION and LEFT JOINs to avoid counting the clicks and impressions twice because that would be the case if I used FULL JOIN.
 
 
 Question #4 In your opinion, what is the most efficient store and why?​
