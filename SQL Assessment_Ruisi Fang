@@ -48,7 +48,8 @@ ON T2.date=T1.date AND T1.geo=T2.geo
 
 # I created 2 temporary tables selecting the columns I need. 
 # By summing the clicks, impressions, and revenue, I got the total clicks, total impressions, and total revenue per geographical location per time.
-# I used UNION function to do two LEFT JOINs separately in order to account for all the records in both tables.
+# I used UNION function to do two LEFT JOINs separately in order to account for all the records in both tables. 
+# Also, I used UNION to avoid counting the clicks and impressions twice because that would be the case if I used FULL JOIN.
 
 
 Question #4 In your opinion, what is the most efficient store and why?​
