@@ -1,10 +1,15 @@
 My answers for the question is based on Microsoft SQL Server. Some code may differ from MySQL.
 
+
+
+
 Question #1 Generate a query to get the sum of the clicks of the marketing data​
 SELECT SUM(clicks) AS sum_clicks
 FROM marketing_data
 
 # Use `SUM` function to get the sum of clicks from the marketing data.
+
+
 
 
 Question #2 Generate a query to gather the sum of revenue by geo from the store_revenue table​
@@ -15,20 +20,32 @@ GROUP BY store_location
 
 # Use `RIGHT` function to get the geo, which are the last two characters from store location. Then group the data by the geo and sum up the revenue. 
 
+
+
+
 Question #3 Merge these two datasets so we can see impressions, clicks, and revenue together by date and geo. Please ensure all records from each table are accounted for.
+
+SELECT MKT.date, MKT.geo, AVG(MKT.impressions) AS impressions, AVG(MKT.clicks) AS clicks, SUM(Revenue) AS store_revenue
+FROM marketing_data AS MKT
+FULL JOIN store_revenue AS SR
+ON MKT.date = SR.date AND MKT.geo = RIGHT(SR.store_location, 2)
+GROUP BY MKT.date, MKT.geo
+
+# Use `AVG` function to avoid counting the impressions and clicks twice when joining the tables, because there are 2 brands in each store.
+
 
 
 
 Question #4 In your opinion, what is the most efficient store and why?​
-SELECT MKT.geo, (SUM(SR.revenue)/SUM(clicks)) AS revenue_per_click
+SELECT MKT.geo, AVG(MKT.impressions) AS avg_impressions, SUM(Revenue)/AVG(MKT.clicks) AS revenue_per_click
 FROM marketing_data AS MKT
-INNER JOIN store_revenue AS SR
+FULL JOIN store_revenue AS SR
 ON MKT.date = SR.date AND MKT.geo = RIGHT(SR.store_location, 2)
 GROUP BY MKT.geo
 ORDER BY revenue_per_click DESC
 
-# I used the revenue per click as an indicator for the store's efficiency.
-# I considered the store in CA as the most efficient store because it has the highest revenue per click.
+# I used revenue per click as an indicator for the store's efficiency.
+# I considered the store in CA as the most efficient store because it has the highest revenue per click and also has the highest average impressions.
 
 
 Question #5 (Challenge) Generate a query to rank in order the top 10 revenue producing states​
