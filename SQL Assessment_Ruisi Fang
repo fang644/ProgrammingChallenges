@@ -8,21 +8,47 @@ Question #1 Generate a query to get the sum of the clicks of the marketing data�
 SELECT SUM(clicks) AS sum_clicks
 FROM marketing_data
 
+# Use `SUM` function to get the sum of clicks from the marketing data.
+
 
 Question #2 Generate a query to gather the sum of revenue by geo from the store_revenue table​
-SELECT RIGHT(store_location, 2) AS state, SUM(revenue) AS sum_revenue
+SELECT RIGHT(store_location, 2) AS geo, 
+       SUM(revenue) AS sum_revenue
 FROM store_revenue
 GROUP BY store_location
 
+# Use `RIGHT` function to get the geo, which are the last two characters from store location. Then group the data by the geo and sum up the revenue. 
 
 Question #3 Merge these two datasets so we can see impressions, clicks, and revenue together by date and geo. Please ensure all records from each table are accounted for.
-SELECT MKT.date, MKT.geo, AVG(MKT.impressions) AS impressions, AVG(MKT.clicks) AS clicks, SUM(SR.revenue) AS total_revenue
-FROM marketing_data AS MKT
-FULL JOIN store_revenue AS SR
-ON MKT.date = SR.date AND MKT.geo = RIGHT(SR.store_location, 2)
-GROUP BY MKT.date, MKT.geo
+WITH T1 AS(                                
+SELECT date, geo, SUM(clicks) AS sum_clicks, SUM(impressions) AS sum_impressions
+FROM marketing_data
+GROUP BY date, geo
+),
+T2 AS(                                      
+SELECT date, RIGHT(store_location,2) AS geo, SUM(revenue) AS total_revenue              
+FROM store_revenue                          
+GROUP BY date, store_location
+)
+SELECT T1.date, 
+       T1.geo, 
+       sum_impressions, 
+       sum_clicks, 
+       total_revenue
+FROM T1 LEFT JOIN T2
+ON T1.date=T2.date AND T1.geo=T2.geo
+UNION
+SELECT T2.date, 
+       T2.geo, 
+       sum_impressions, 
+       sum_clicks, 
+       total_revenue
+FROM T2 LEFT JOIN T1
+ON T2.date=T1.date AND T1.geo=T2.geo
 
-I use the function `AVG` to avoid counting impressions and clicks twice when joining tables, because there are 2 brands per store.
+# I created 2 temporary tables selecting the columns I need. 
+# By summing the clicks, impressions, and revenue, I got the total clicks, total impressions, and total revenue per geographical location per time.
+# I used UNION function to do two LEFT JOINs separately in order to account for all the records in both tables.
 
 
 Question #4 In your opinion, what is the most efficient store and why?​
@@ -33,7 +59,8 @@ ON MKT.date = SR.date AND MKT.geo = RIGHT(SR.store_location, 2)
 GROUP BY MKT.geo
 ORDER BY revenue_per_click DESC
 
-I consider the store in CA as the most efficient store because it has the highest revenue per click.
+# I used the revenue per click as an indicator for the store's efficiency.
+# I considered the store in CA as the most efficient store because it has the highest revenue per click.
 
 
 Question #5 (Challenge) Generate a query to rank in order the top 10 revenue producing states​
@@ -42,10 +69,4 @@ FROM store_revenue
 GROUP BY store_location
 ORDER BY total_revenue DESC
 
-OR
-
-SELECT RIGHT(store_location, 2) AS State, SUM(revenue) AS total_revenue
-FROM store_revenue
-GROUP BY store_location
-ORDER BY total_revenue DESC
-LIMIT 10
+# I used SELECT TOP 10 instead of LIMIT because I am using MS SQL Server.
